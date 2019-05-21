@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" 
+xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8" />
+<title>TADS DSW</title>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous" />
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<script th:inline="javascript">
+            $(function () {
+                $('#deleteModal').on('show.bs.modal', function (event) {
+                    var button = $(event.relatedTarget) // Button that triggered the modal
+                    var nomeTarefa = button.data('nomeprod') // Extract info from data-* attributes
+                    var actionUrl = button.data('actionurl');
+                    // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
+                    // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
+                    var modal = $(this);
+                    modal.find('.modal-title').text('Concluir tarefa ' + nomeTarefa);
+                    modal.find('.modal-body p').text('Deseja finalizar ' + nomeTarefa + '?');
+                    modal.find('.modal-footer form').attr('action', actionUrl);
+                })
+            });
+            $(function () {
+                $('#iniciarModal').on('show.bs.modal', function (event) {
+                    var button = $(event.relatedTarget) // Button that triggered the modal
+                    var nomeProduto = button.data('nomeprod') // Extract info from data-* attributes
+                    var actionUrl = button.data('actionurl');
+                    // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
+                    // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
+                    var modal = $(this);
+                    modal.find('.modal-title').text('Iniciar tarefa ' + nomeProduto);
+                    modal.find('.modal-body p').text('Deseja iniciar a tarefa ' + nomeProduto + '?');
+                    modal.find('.modal-footer form').attr('action', actionUrl);
+                })
+            });
+        </script>
+</head>
+
+<body>
+<main class="container">
+<div class="row">
+<div class="col-12">
+<h1>Lista de Tarefas</h1>
+<div th:if="${mensagemSucesso != null}" th:text="${mensagemSucesso}" class="alert alert-success" role="alert"></div>
+<div>
+    <table class="table table-striped table-sm">
+        <thead class="thead-dark">
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Status</th>
+                <th>ACTIONS</th>
+            </tr>
+        </thead>
+        <tbody data-th-if="${tarefa != null}">
+            <tr data-th-each="t, stat: ${tarefa}">
+                <td data-th-text="${t.id}"></td>
+                <td data-th-text="${t.nome}"></td>
+                <td th:switch="${t.status}">
+                     <p th:case="0">Não iniciada</p>
+                     <p th:case="1">Em andamento</p>
+                     <p th:case="2">Concluída</p>     
+                </td>
+                   <td th:switch="${t.status}">
+                        <p th:case="0">
+                            <a data-th-href="@{/tarefas/{id}/editar(id=${t.id})}" class="btn btn-primary">Editar</a>
+                            <a href="#" class="btn btn-success" data-toggle="modal" data-target="#iniciarModal" th:attr="data-nomeprod=${t.nome},data-actionurl=@{/tarefa/{id}/remover(id=${t.id})}">Iniciar</a>
+                        </p>
+                        <p th:case="1">
+                            <a data-th-href="@{/tarefas/{id}/editar(id=${t.id})}" class="btn btn-primary">Editar</a>
+                            <a href="#" class="btn btn-warning" data-toggle="modal" data-target="#concluidoModal" th:attr="data-nomeprod=${t.nome},data-actionurl=@{/tarefa/{id}/remover(id=${t.id})}" value="concluido">Concluir</a>
+                        </p>
+                        <p th:case="2">
+                            <a data-th-href="@{/tarefas/{id}/editar(id=${t.id})}" class="btn btn-primary">Visualizar</a>
+                        </p> 
+
+                    </td>
+            </tr>
+        </tbody>
+    </table>
+    <a data-th-href="@{/tarefas/novo}" class="btn btn-success"><i class="fa fa-plus"></i> Incluir</a>
+</div>
+</div>
+</div>
+</main>
+<div class="modal fade" tabindex="-1" role="dialog" id="concluidoModal">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Concluir tarefa</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p></p>
+                        Selecione uma nota:
+                        <select>
+                            <option>1</option>
+                            <option>2</option>
+                            <option>3</option>
+                            <option>4</option>
+                            <option>5</option>
+                        </select>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-dark" data-dismiss="modal">Cancelar</button>
+                        <form action="concluido" method="post">
+                        <button type="submit" class="btn btn-success" value="concluido">Concluir</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" tabindex="-1" role="dialog" id="iniciarModal">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Iniciar tarefa</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-dark" data-dismiss="modal">Não</button>
+  
+                        <button type="submit" class="btn btn-success" value="sim">Sim</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+</body>
+</html>
